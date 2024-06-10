@@ -3,7 +3,7 @@ from queue import PriorityQueue
 
 def BFS(matrix, start, end):
     """
-    BFS algorithm:
+    Breadth-First Search (BFS) algorithm:
     Parameters:
     ---------------------------
     matrix: np array 
@@ -21,33 +21,36 @@ def BFS(matrix, start, end):
     path: list
         Founded path
     """
-    # TODO: 
-   
     path = []
     visited = {start: None}
-    queue = [start]
-
-    while queue:
-        node = queue.pop(0)
+    frontier = [start]
+    print(f"frontier: {frontier}")
+    
+    while frontier:
+        node = frontier.pop(0)
         if node == end:
             break
         for neighbor, connected in enumerate(matrix[node]):
             if connected and neighbor not in visited:
                 visited[neighbor] = node
-                queue.append(neighbor)
-
+                frontier.append(neighbor)
+        print(f"frontier: {frontier}")
+    
     if end in visited:
         node = end
         while node is not None:
             path.insert(0, node)
             node = visited[node]
-
+    
+    print(f"path: {path}")
+    print(f"visited: {visited}")
     return visited, path
+
 
 def DFS(matrix, start, end):
     """
-    DFS algorithm
-     Parameters:
+    Depth-First Search (DFS) algorithm
+    Parameters:
     ---------------------------
     matrix: np array 
         The graph's adjacency matrix
@@ -64,182 +67,35 @@ def DFS(matrix, start, end):
     path: list
         Founded path
     """
-
-    # TODO: 
-    
     path = []
     visited = {start: None}
-    stack = [start]
+    frontier = [start]
+    print(f"frontier: {frontier}")
 
-    while stack:
-        node = stack.pop()
+    while frontier:
+        node = frontier.pop()
         if node == end:
             break
         for neighbor in range(len(matrix[node]) - 1, -1, -1):
             if matrix[node][neighbor] and neighbor not in visited:
                 visited[neighbor] = node
-                stack.append(neighbor)
+                frontier.append(neighbor)
+                print(f"frontier: {frontier}")
 
     if end in visited:
         node = end
         while node is not None:
             path.insert(0, node)
             node = visited[node]
-   
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
     return visited, path
 
 
 def UCS(matrix, start, end):
     """
-    Uniform Cost Search algorithm
-     Parameters:visited
-    ---------------------------
-    matrix: np array
-        The graph's adjacency matrix
-    start: integer
-        starting node
-    end: integer
-        ending node
-    
-    Returns
-    ---------------------
-    visited
-        The dictionary contains visited nodes: each key is a visited node, 
-        each value is the key's adjacent node which is visited before key.
-    path: list
-        Founded path
-    """
-    # TODO:  
-    path = []
-    visited = {start: None}
-    pq = PriorityQueue()
-    pq.put((0, start))
-    cost = {start: 0}
-
-    while not pq.empty():
-        current_cost, node = pq.get()
-        if node == end:
-            break
-        for neighbor, weight in enumerate(matrix[node]):
-            if weight:
-                new_cost = current_cost + weight
-                if neighbor not in cost or new_cost < cost[neighbor]:
-                    cost[neighbor] = new_cost
-                    pq.put((new_cost, neighbor))
-                    visited[neighbor] = node
-
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-            
-    return visited, path
-
-
-def GBFS(matrix, start, end):
-    """
-    Greedy Best First Search algorithm 
-    heuristic : edge weights
-     Parameters:
-    ---------------------------
-    matrix: np array 
-        The graph's adjacency matrix
-    start: integer 
-        starting node
-    end: integer
-        ending node
-   
-    Returns
-    ---------------------
-    visited
-        The dictionary contains visited nodes: each key is a visited node, 
-        each value is the key's adjacent node which is visited before key.
-    path: list
-        Founded path
-    """
-    # TODO: 
-    
-    path = []
-    visited = {start: None}
-    pq = PriorityQueue()
-    pq.put((0, start))
-
-    while not pq.empty():
-        _, node = pq.get()
-        if node == end:
-            break
-        for neighbor, weight in enumerate(matrix[node]):
-            if weight and neighbor not in visited:
-                visited[neighbor] = node
-                heuristic = weight  # Assuming heuristic is the weight itself
-                pq.put((heuristic, neighbor))
-
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-            
-    return visited, path
-
-def Astar(matrix, start, end, pos):
-    """
-    A* Search algorithm
-    heuristic: eclid distance based positions parameter
-     Parameters:
-    ---------------------------
-    matrix: np array UCS
-        The graph's adjacency matrix
-    start: integer 
-        starting node
-    end: integer
-        ending node
-    pos: dictionary. keys are nodes, values are positions
-        positions of graph nodes
-    Returns
-    ---------------------
-    visited
-        The dictionary contains visited nodes: each key is a visited node, 
-        each value is the key's adjacent node which is visited before key.
-    path: list
-        Founded path
-    """
-    # TODO: 
-
-    def heuristic(a, b):
-        return np.linalg.norm(np.array(pos[a]) - np.array(pos[b]))
-
-    path = []
-    visited = {start: None}
-    pq = PriorityQueue()
-    pq.put((0, start))
-    cost = {start: 0}
-
-    while not pq.empty():
-        _, node = pq.get()
-        if node == end:
-            break
-        for neighbor, weight in enumerate(matrix[node]):
-            if weight:
-                new_cost = cost[node] + weight
-                if neighbor not in cost or new_cost < cost[neighbor]:
-                    cost[neighbor] = new_cost
-                    priority = new_cost + heuristic(neighbor, end)
-                    pq.put((priority, neighbor))
-                    visited[neighbor] = node
-
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-            
-    return visited, path
-
-def Dijkstra(matrix, start, end):
-    """
-    Dijkstra's algorithm
+    Uniform Cost Search (UCS) algorithm
     Parameters:
     ---------------------------
     matrix: np array
@@ -262,9 +118,14 @@ def Dijkstra(matrix, start, end):
     pq = PriorityQueue()
     pq.put((0, start))
     cost = {start: 0}
-    
+
+    frontier = [(start, 0)]
+    print(f"frontier: {frontier}")
+
     while not pq.empty():
         current_cost, node = pq.get()
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+        print(f"frontier: {frontier}")
         if node == end:
             break
         for neighbor, weight in enumerate(matrix[node]):
@@ -274,13 +135,189 @@ def Dijkstra(matrix, start, end):
                     cost[neighbor] = new_cost
                     pq.put((new_cost, neighbor))
                     visited[neighbor] = node
-    
+
     if end in visited:
         node = end
         while node is not None:
             path.insert(0, node)
             node = visited[node]
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
+
+
+def GBFS(matrix, start, end, pos):
+    """
+    Greedy Best First Search algorithm
+    heuristic : Euclidean distance based on positions parameter
+    Parameters:
+    ---------------------------
+    matrix: np array
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    pos: dictionary. keys are nodes, values are positions
+        positions of graph nodes
+    Returns
+    ---------------------
+    visited
+        The dictionary contains visited nodes: each key is a visited node,
+        each value is the key's adjacent node which is visited before key.
+    path: list
+        Founded path
+    """
+    path = []
+    visited = {start: None}
+    pq = PriorityQueue()
+    pq.put((heuristic(start, end, pos), start))
+
+    frontier = [(start, heuristic(start, end, pos))]
+    print(f"frontier: {frontier}")
+
+    while not pq.empty():
+        _, node = pq.get()
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+        print(f"frontier: {frontier}")
+        if node == end:
+            break
+        for neighbor, connected in enumerate(matrix[node]):
+            if connected and neighbor not in visited:
+                visited[neighbor] = node
+                pq.put((heuristic(neighbor, end, pos), neighbor))
+
+    if end in visited:
+        node = end
+        while node is not None:
+            path.insert(0, node)
+            node = visited[node]
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
+
+
+# def heuristic(node, end, pos):
+#     # Euclidean distance as heuristic
+#     return np.linalg.norm(np.array(pos[node]) - np.array(pos[end]))
+
+
+def heuristic(node, end, pos):
+    # Euclidean distance as heuristic
+    x1, y1 = pos[node]
+    x2, y2 = pos[end]
+    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+def Astar(matrix, start, end, pos):
+    """
+    A* Search algorithm
+    heuristic: Euclidean distance based on positions parameter
+    Parameters:
+    ---------------------------
+    matrix: np array
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    pos: dictionary. keys are nodes, values are positions
+        positions of graph nodes
+    Returns
+    ---------------------
+    visited
+        The dictionary contains visited nodes: each key is a visited node, 
+        each value is the key's adjacent node which is visited before key.
+    path: list
+        Founded path
+    """
+    path = []
+    visited = {start: None}
+    pq = PriorityQueue()
+    pq.put((0, start))
+    cost = {start: 0}
+
+    frontier = [(start, 0)]
+    print(f"frontier: {frontier}")
+
+    while not pq.empty():
+        current_cost, node = pq.get()
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+        print(f"frontier: {frontier}")
+        if node == end:
+            break
+        for neighbor, weight in enumerate(matrix[node]):
+            if weight:
+                new_cost = cost[node] + weight
+                if neighbor not in cost or new_cost < cost[neighbor]:
+                    cost[neighbor] = new_cost
+                    priority = new_cost + heuristic(neighbor, end, pos)
+                    pq.put((priority, neighbor))
+                    visited[neighbor] = node
+
+    if end in visited:
+        node = end
+        while node is not None:
+            path.insert(0, node)
+            node = visited[node]
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
+
+
+def Dijkstra(matrix, start, end):
+    """
+    Dijkstra's algorithm
+    Parameters:
+    ---------------------------
+    matrix: np array
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
     
+    Returns
+    ---------------------
+    visited
+        The dictionary contains visited nodes, each key is a visited node, 
+        each value is the key's adjacent node which is visited before key.
+    path: list
+        Founded path
+    """
+    path = []
+    visited = {start: None}
+    pq = PriorityQueue()
+    pq.put((0, start))
+    cost = {start: 0}
+
+    frontier = [(start, 0)]
+    print(f"frontier: {frontier}")
+
+    while not pq.empty():
+        current_cost, node = pq.get()
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+        print(f"frontier: {frontier}")
+        if node == end:
+            break
+        for neighbor, weight in enumerate(matrix[node]):
+            if weight:
+                new_cost = current_cost + weight
+                if neighbor not in cost or new_cost < cost[neighbor]:
+                    cost[neighbor] = new_cost
+                    pq.put((new_cost, neighbor))
+                    visited[neighbor] = node
+
+    if end in visited:
+        node = end
+        while node is not None:
+            path.insert(0, node)
+            node = visited[node]
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
     return visited, path
 
 # def DLS(matrix, start, end, limit):
