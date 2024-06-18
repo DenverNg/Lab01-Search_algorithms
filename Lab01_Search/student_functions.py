@@ -1,9 +1,37 @@
 import numpy as np
 from queue import PriorityQueue
 
+def construct_path(visited, end):
+    """
+    Constructs the path from the start node to the end node using the visited dictionary.
+    
+    Parameters:
+    ---------------------------
+    visited: dictionary
+        The dictionary contains visited nodes: each key is a visited node, 
+        each value is the key's adjacent node which is visited before key.
+    end: integer
+        The end node for which the path needs to be constructed.
+    
+    Returns
+    ---------------------
+    visited: dictionary
+        The same visited dictionary that was passed as input.
+    path: list
+        The constructed path from the start node to the end node.
+    """
+    path = []
+    current = end
+    while current is not None:
+        path.insert(0, current)
+        current = visited[current]
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
+
 def BFS(matrix, start, end):
     """
-    Breadth-First Search (BFS) algorithm:
+    BFS algorithm:
     Parameters:
     ---------------------------
     matrix: np array 
@@ -20,41 +48,42 @@ def BFS(matrix, start, end):
         each value is the adjacent node visited before it.
     path: list
         Founded path
+    --------------------------------
+    Ref: https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
     """
-    path = []
-    visited = {start: None}
     frontier = [start]
+    visited = {start: None}
+    path = []
+
     print(f"frontier: {frontier}")
-    
+
     while frontier:
-        node = frontier.pop(0)
-        if node == end:
-            break
-        for neighbor, connected in enumerate(matrix[node]):
-            if connected and neighbor not in visited:
-                visited[neighbor] = node
+        current = frontier.pop(0)
+        if current == end:
+            visited, path = construct_path(visited, end)
+            return visited, path
+
+        for neighbor in range(len(matrix[current])):
+            if matrix[current][neighbor] and neighbor == end:
+                visited[neighbor] = current
+                visited, path = construct_path(visited, end)
+                return visited, path  
+            if matrix[current][neighbor] and neighbor not in visited:
+                visited[neighbor] = current
                 frontier.append(neighbor)
         print(f"frontier: {frontier}")
-    
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-    
-    print(f"path: {path}")
+
     print(f"visited: {visited}")
     return visited, path
 
-
 def DFS(matrix, start, end):
     """
-    Depth-First Search (DFS) algorithm
+    DFS algorithm:
     Parameters:
     ---------------------------
     matrix: np array 
         The graph's adjacency matrix
-    start: integer 
+    start: integer
         starting node
     end: integer
         ending node
@@ -66,29 +95,36 @@ def DFS(matrix, start, end):
         each value is the key's adjacent node which is visited before key.
     path: list
         Founded path
+    --------------------------------
+    Ref: https://www.geeksforgeeks.org/iterative-depth-first-traversal/
     """
+    frontier = [(start, None)]
+    visited = {}
     path = []
-    visited = {start: None}
-    frontier = [start]
-    print(f"frontier: {frontier}")
+
+    #print(f"frontier: {frontier}")
 
     while frontier:
-        node = frontier.pop()
-        if node == end:
-            break
-        for neighbor in range(len(matrix[node]) - 1, -1, -1):
-            if matrix[node][neighbor] and neighbor not in visited:
-                visited[neighbor] = node
-                frontier.append(neighbor)
-                print(f"frontier: {frontier}")
+        current, predecessor = frontier.pop()
+        visited[current] = predecessor
 
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
+        while len(path) > 0 and path[-1] != visited[current]:
+            path.pop()
+        path.append(current)
 
-    print(f"path: {path}")
+        if current == end:
+            print("-----------------")
+            #print(f"frontier: {frontier}")
+            print(f"visited: {visited}")
+            print(f"path: {path}")
+            return visited, path
+
+        for neighbor in range(len(matrix[current]) - 1, -1, -1):
+            if matrix[current][neighbor] != 0 and neighbor not in visited:
+                frontier.append((neighbor, current))
+
+        #print(f"frontier: {frontier}")
+
     print(f"visited: {visited}")
     return visited, path
 
@@ -125,7 +161,7 @@ def UCS(matrix, start, end):
     while not pq.empty():
         current_cost, node = pq.get()
         frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
-        print(f"frontier: {frontier}")
+        print(f"frontier: {frontier}" + f" queue: {pq.queue}")
         if node == end:
             break
         for neighbor, weight in enumerate(matrix[node]):
