@@ -183,7 +183,7 @@ def UCS(matrix, start, end):
     return visited, path
 
 
-def GBFS(matrix, start, end, pos):
+def GBFS1(matrix, start, end, pos):
     """
     Greedy Best First Search algorithm
     heuristic : Euclidean distance based on positions parameter
@@ -234,6 +234,59 @@ def GBFS(matrix, start, end, pos):
     print(f"visited: {visited}")
     return visited, path
 
+
+def GBFS(matrix, start, end):
+    """
+    Greedy Best First Search algorithm
+    heuristic : edge weights
+    Parameters:
+    ---------------------------
+    matrix: np array
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    
+    Returns
+    ---------------------
+    visited
+        The dictionary contains visited nodes: each key is a visited node,
+        each value is the key's adjacent node which is visited before key.
+    path: list
+        Founded path
+    """
+    path = []
+    visited = {start: None}
+    pq = PriorityQueue()
+    pq.put((0, start))
+
+    frontier = [(start, 0)]
+    print(f"frontier: {frontier}")
+
+    while not pq.empty():
+        _, node = pq.get()
+        frontier = [(n, c) for c, n in pq.queue]
+        print(f"frontier: {frontier}")
+
+        if node == end:
+            break
+
+        for neighbor in range(len(matrix[node])):
+            weight = matrix[node][neighbor]
+            if weight and neighbor not in visited:
+                pq.put((weight, neighbor))
+                visited[neighbor] = node
+
+    if end in visited:
+        node = end
+        while node is not None:
+            path.insert(0, node)
+            node = visited[node]
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
 
 # def heuristic(node, end, pos):
 #     # Euclidean distance as heuristic
