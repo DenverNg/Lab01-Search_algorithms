@@ -128,7 +128,6 @@ def DFS(matrix, start, end):
     print(f"visited: {visited}")
     return visited, path
 
-
 def UCS(matrix, start, end):
     """
     Uniform Cost Search (UCS) algorithm
@@ -181,59 +180,6 @@ def UCS(matrix, start, end):
     print(f"path: {path}")
     print(f"visited: {visited}")
     return visited, path
-
-
-def GBFS1(matrix, start, end, pos):
-    """
-    Greedy Best First Search algorithm
-    heuristic : Euclidean distance based on positions parameter
-    Parameters:
-    ---------------------------
-    matrix: np array
-        The graph's adjacency matrix
-    start: integer
-        starting node
-    end: integer
-        ending node
-    pos: dictionary. keys are nodes, values are positions
-        positions of graph nodes
-    Returns
-    ---------------------
-    visited
-        The dictionary contains visited nodes: each key is a visited node,
-        each value is the key's adjacent node which is visited before key.
-    path: list
-        Founded path
-    """
-    path = []
-    visited = {start: None}
-    pq = PriorityQueue()
-    pq.put((heuristic(start, end, pos), start))
-
-    frontier = [(start, heuristic(start, end, pos))]
-    print(f"frontier: {frontier}")
-
-    while not pq.empty():
-        _, node = pq.get()
-        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
-        print(f"frontier: {frontier}")
-        if node == end:
-            break
-        for neighbor, connected in enumerate(matrix[node]):
-            if connected and neighbor not in visited:
-                visited[neighbor] = node
-                pq.put((heuristic(neighbor, end, pos), neighbor))
-
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-
-    print(f"path: {path}")
-    print(f"visited: {visited}")
-    return visited, path
-
 
 def GBFS(matrix, start, end):
     """
@@ -358,12 +304,101 @@ def Astar(matrix, start, end, pos):
     return visited, path
 
 
-def Dijkstra(matrix, start, end):
+def DLS(matrix, start, end, limit):
     """
-    Dijkstra's algorithm
+    Depth-Limited Search algorithm:
     Parameters:
     ---------------------------
     matrix: np array
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    limit: integer
+        maximum depth limit
+        default limit = 2
+    Returns
+    ---------------------
+    visited
+        The dictionary contains visited nodes: each key is a visited node,
+        each value is the key's adjacent node which is visited before key.
+    path: list
+        Founded path
+    """
+
+    def recursive_dls(node, depth):
+        if depth > limit:
+            return False
+        if node == end:
+            return True
+        for neighbor in range(len(matrix[node])):
+            if matrix[node][neighbor] and neighbor not in visited:
+                visited[neighbor] = node
+                if recursive_dls(neighbor, depth + 1):
+                    path.insert(0, neighbor)
+                    return True
+                # If not successful, backtrack
+                visited.pop(neighbor)
+        return False
+
+    path = []
+    visited = {start: None}
+
+    print(f"Starting DLS with limit {limit}")
+
+    if recursive_dls(start, 0):
+        path.insert(0, start)
+    else:
+        print("No path found within depth limit.")
+
+    print(f"path: {path}")
+    print(f"visited: {visited}")
+    return visited, path
+
+def DLS_for_IDS(matrix, start, end, limit, visited, frontier):
+    """
+    Depth-Limited Search (DLS) for IDS
+    Parameters:
+    ---------------------------
+    matrix: list of lists (2D array)
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    limit: integer
+        maximum depth limit
+    visited: dict
+        The dictionary containing visited nodes with their parent nodes
+    frontier: set
+        The set of nodes being explored at the current depth limit
+    
+    Returns
+    ---------------------
+    bool
+        True if target is found within limit, False otherwise
+    """
+    if start == end:
+        return True
+    if limit <= 0:
+        return False
+
+    for neighbor in range(len(matrix[start])):
+        if matrix[start][neighbor] and neighbor not in visited:
+            visited[neighbor] = start
+            if DLS_for_IDS(matrix, neighbor, end, limit - 1, visited, frontier):
+                return True
+            frontier.add(neighbor)
+    return False
+
+
+def IDS(matrix, start, end):
+    """
+    Iterative Deepening Search (IDS) algorithm
+    Parameters:
+    ---------------------------
+    matrix: list of lists (2D array)
         The graph's adjacency matrix
     start: integer
         starting node
@@ -373,87 +408,24 @@ def Dijkstra(matrix, start, end):
     Returns
     ---------------------
     visited
-        The dictionary contains visited nodes, each key is a visited node, 
+        The dictionary contains visited nodes: each key is a visited node,
         each value is the key's adjacent node which is visited before key.
     path: list
         Founded path
     """
-    path = []
-    visited = {start: None}
-    pq = PriorityQueue()
-    pq.put((0, start))
-    cost = {start: 0}
-
-    frontier = [(start, 0)]
-    print(f"frontier: {frontier}")
-
-    while not pq.empty():
-        current_cost, node = pq.get()
-        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
-        print(f"frontier: {frontier}")
-        if node == end:
-            break
-        for neighbor, weight in enumerate(matrix[node]):
-            if weight:
-                new_cost = current_cost + weight
-                if neighbor not in cost or new_cost < cost[neighbor]:
-                    cost[neighbor] = new_cost
-                    pq.put((new_cost, neighbor))
-                    visited[neighbor] = node
-
-    if end in visited:
-        node = end
-        while node is not None:
-            path.insert(0, node)
-            node = visited[node]
-
-    print(f"path: {path}")
-    print(f"visited: {visited}")
-    return visited, path
-
-# def DLS(matrix, start, end, limit):
-#     """
-#     Depth-Limited Search (DLS) algorithm
-#     Parameters:
-#     ---------------------------
-#     matrix: np array 
-#         The graph's adjacency matrix
-#     start: integer 
-#         starting node
-#     end: integer
-#         ending node
-#     limit: integer
-#         depth limit
-    
-#     Returns
-#     ---------------------
-#     visited 
-#         The dictionary contains visited nodes: each key is a visited node, 
-#         each value is the key's adjacent node which is visited before key.
-#     path: list
-#         Founded path
-#     """
-#     path = []
-#     visited = {start: None}
-    
-#     def recursive_dls(node, depth):
-#         if node == end:
-#             return True
-#         if depth == limit:
-#             return False
-#         for neighbor, connected in enumerate(matrix[node]):
-#             if connected and neighbor not in visited:
-#                 visited[neighbor] = node
-#                 if recursive_dls(neighbor, depth + 1):
-#                     return True
-#         return False
-    
-#     recursive_dls(start, 0)
-    
-#     if end in visited:
-#         node = end
-#         while node is not None:
-#             path.insert(0, node)
-#             node = visited[node]
-    
-#     return visited, path
+    maxDepth = len(matrix) # Maximum depth is the number of nodes in the graph
+    for depth in range(maxDepth + 1):
+        visited = {start: None}
+        frontier = {start}
+        if DLS_for_IDS(matrix, start, end, depth, visited, frontier):
+            path = []
+            node = end
+            while node is not None:
+                path.insert(0, node)
+                node = visited[node]
+            #print(f"limit {depth}: {frontier}")
+            print(f"path: {path}")
+            print(f"visited: {visited}")
+            return visited, path
+        print(f"limit {depth}: {frontier}")
+    return {}, []
