@@ -262,13 +262,11 @@ def GBFS(matrix, start, end):
     pq.put((0, start))
 
     frontier = [(start, 0)]
-    print(f"frontier: {frontier}")
-
+    #print(f"frontier: {frontier}")
     while not pq.empty():
         _, node = pq.get()
-        frontier = [(n, c) for c, n in pq.queue]
+        # frontier = [(n, c) for c, n in pq.queue]
         print(f"frontier: {frontier}")
-
         if node == end:
             break
 
@@ -277,6 +275,8 @@ def GBFS(matrix, start, end):
             if weight and neighbor not in visited:
                 pq.put((weight, neighbor))
                 visited[neighbor] = node
+        #frontier = [(n, c) for c, n in pq.queue]
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
 
     if end in visited:
         node = end
