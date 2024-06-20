@@ -328,11 +328,11 @@ def Astar(matrix, start, end, pos):
     cost = {start: 0}
 
     frontier = [(start, 0)]
-    print(f"frontier: {frontier}")
+    #print(f"frontier: {frontier}")
 
     while not pq.empty():
         current_cost, node = pq.get()
-        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+        # frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
         print(f"frontier: {frontier}")
         if node == end:
             break
@@ -344,6 +344,8 @@ def Astar(matrix, start, end, pos):
                     priority = new_cost + heuristic(neighbor, end, pos)
                     pq.put((priority, neighbor))
                     visited[neighbor] = node
+        frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
+
 
     if end in visited:
         node = end
