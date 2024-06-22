@@ -1,3 +1,4 @@
+from collections import deque
 import numpy as np
 from queue import PriorityQueue
 
@@ -102,8 +103,6 @@ def DFS(matrix, start, end):
     visited = {}
     path = []
 
-    #print(f"frontier: {frontier}")
-
     while frontier:
         current, predecessor = frontier.pop()
         visited[current] = predecessor
@@ -114,7 +113,6 @@ def DFS(matrix, start, end):
 
         if current == end:
             print("-----------------")
-            #print(f"frontier: {frontier}")
             print(f"visited: {visited}")
             print(f"path: {path}")
             return visited, path
@@ -122,8 +120,6 @@ def DFS(matrix, start, end):
         for neighbor in range(len(matrix[current]) - 1, -1, -1):
             if matrix[current][neighbor] != 0 and neighbor not in visited:
                 frontier.append((neighbor, current))
-
-        #print(f"frontier: {frontier}")
 
     print(f"visited: {visited}")
     return visited, path
@@ -208,10 +204,8 @@ def GBFS(matrix, start, end):
     pq.put((0, start))
 
     frontier = [(start, 0)]
-    #print(f"frontier: {frontier}")
     while not pq.empty():
         _, node = pq.get()
-        # frontier = [(n, c) for c, n in pq.queue]
         print(f"frontier: {frontier}")
         if node == end:
             break
@@ -221,7 +215,6 @@ def GBFS(matrix, start, end):
             if weight and neighbor not in visited:
                 pq.put((weight, neighbor))
                 visited[neighbor] = node
-        #frontier = [(n, c) for c, n in pq.queue]
         frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
 
     if end in visited:
@@ -233,11 +226,6 @@ def GBFS(matrix, start, end):
     print(f"path: {path}")
     print(f"visited: {visited}")
     return visited, path
-
-# def heuristic(node, end, pos):
-#     # Euclidean distance as heuristic
-#     return np.linalg.norm(np.array(pos[node]) - np.array(pos[end]))
-
 
 def heuristic(node, end, pos):
     # Euclidean distance as heuristic
@@ -292,7 +280,6 @@ def Astar(matrix, start, end, pos):
                     visited[neighbor] = node
         frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
 
-
     if end in visited:
         node = end
         while node is not None:
@@ -302,7 +289,6 @@ def Astar(matrix, start, end, pos):
     print(f"path: {path}")
     print(f"visited: {visited}")
     return visited, path
-
 
 def DLS(matrix, start, end, limit):
     """
@@ -317,7 +303,7 @@ def DLS(matrix, start, end, limit):
         ending node
     limit: integer
         maximum depth limit
-        default limit = 2
+        default limit = 2 (you can change it to any value you want in Animations.py file)
     Returns
     ---------------------
     visited
@@ -392,7 +378,6 @@ def DLS_for_IDS(matrix, start, end, limit, visited, frontier):
             frontier.add(neighbor)
     return False
 
-
 def IDS(matrix, start, end):
     """
     Iterative Deepening Search (IDS) algorithm
@@ -423,9 +408,118 @@ def IDS(matrix, start, end):
             while node is not None:
                 path.insert(0, node)
                 node = visited[node]
-            #print(f"limit {depth}: {frontier}")
             print(f"path: {path}")
             print(f"visited: {visited}")
             return visited, path
         print(f"limit {depth}: {frontier}")
     return {}, []
+
+
+def bidirectional_search(matrix, start, end):
+    """
+    Bidirectional Search algorithm
+    Parameters:
+    ---------------------------
+    matrix: list of lists (2D array)
+        The graph's adjacency matrix
+    start: integer
+        starting node
+    end: integer
+        ending node
+    
+    Returns
+    ---------------------
+    visited: string
+        The string contains visited nodes from both searches:
+        src_visited and dest_visited.
+    path: list
+        Found path from start to end
+    """
+
+    from collections import deque
+
+    # Initialization
+    n = len(matrix)
+    if start == end:
+        visited = f"{start}: None\n{end}: None"
+        return visited, [start]
+
+    src_queue = deque([start])
+    dest_queue = deque([end])
+
+    src_visited = {start: None}
+    dest_visited = {end: None}
+
+    print("Starting Bidirectional Search...")
+    print(f"Searching path from {start} to {end}")
+    step = 0
+    # Perform BFS from both ends
+    while src_queue and dest_queue:
+        step += 1
+        print(f"\nStep {step}")
+        # Forward search from source
+        if src_queue:
+            print(f"Source queue: {src_queue}")
+            current = src_queue.popleft()
+            for neighbor, is_connected in enumerate(matrix[current]):
+                if is_connected and neighbor not in src_visited:
+                    src_queue.append(neighbor)
+                    src_visited[neighbor] = current
+                    # print(f"Source visited: {src_visited}")
+                    
+                    if neighbor in dest_visited:
+                        # Path found
+                        visited = _format_visited(src_visited, dest_visited)
+                        path = _construct_path(src_visited, dest_visited, neighbor)
+                        print(f"Source visited: {src_visited}")
+                        print(f"Path found: {path}")
+                        return visited, path
+            print(f"Source visited: {src_visited}")
+        # Backward search from destination
+        if dest_queue:
+            print(f"Destination queue: {dest_queue}")
+            current = dest_queue.popleft()
+            for neighbor, is_connected in enumerate(matrix[current]):
+                if is_connected and neighbor not in dest_visited:
+                    dest_queue.append(neighbor)
+                    dest_visited[neighbor] = current
+                    # print(f"Destination visited: {dest_visited}")
+                    
+                    if neighbor in src_visited:
+                        # Path found
+                        visited = _format_visited(src_visited, dest_visited)
+                        path = _construct_path(src_visited, dest_visited, neighbor)
+                        print(f"Destination visited: {dest_visited}")
+                        print(f"Path found: {path}")
+                        return visited, path
+            print(f"Destination visited: {dest_visited}")
+    # If no path found
+    visited = _format_visited(src_visited, dest_visited)
+    print("No path found.")
+    return visited, []
+
+
+def _construct_path(src_visited, dest_visited, intersecting_node):
+    # Construct the path from source to destination via the intersecting node
+    path = []
+
+    # From source to intersection
+    current = intersecting_node
+    while current is not None:
+        path.append(current)
+        current = src_visited[current]
+    path.reverse()
+
+    # From intersection to destination
+    current = dest_visited[intersecting_node]
+    while current is not None:
+        path.append(current)
+        current = dest_visited[current]
+
+    return path
+
+
+def _format_visited(src_visited, dest_visited):
+    # Format the visited dictionaries into a single string
+    res = src_visited | dest_visited
+    return res

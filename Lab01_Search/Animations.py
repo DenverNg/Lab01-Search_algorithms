@@ -1,6 +1,6 @@
 from Graphs import initialize, generateFigure, getRawData, readMatrix, np
 from Colors import *
-from student_functions import DFS, BFS, UCS, GBFS, Astar, DLS, IDS
+from student_functions import DFS, BFS, UCS, GBFS, Astar, DLS, IDS, bidirectional_search
 import pygame
 import matplotlib.pyplot as plt
 from pygame.locals import *
@@ -85,6 +85,8 @@ def run(input, algorithm, delay):
         visited, path  = DLS(matrix, start, end, depth)
     elif algorithm == 'ids':
         visited, path  = IDS(matrix, start, end)
+    elif algorithm == 'bidirect':
+        visited, path  = bidirectional_search(matrix, start, end)
     else:
         print("Pass a search algorithm to run program.")
     
