@@ -56,7 +56,7 @@ def BFS(matrix, start, end):
     visited = {start: None}
     path = []
 
-    print(f"frontier: {frontier}")
+    #print(f"frontier: {frontier}")
 
     while frontier:
         current = frontier.pop(0)
@@ -72,7 +72,7 @@ def BFS(matrix, start, end):
             if matrix[current][neighbor] and neighbor not in visited:
                 visited[neighbor] = current
                 frontier.append(neighbor)
-        print(f"frontier: {frontier}")
+        #print(f"frontier: {frontier}")
 
     print(f"visited: {visited}")
     return visited, path
@@ -151,12 +151,12 @@ def UCS(matrix, start, end):
     cost = {start: 0}
 
     frontier = [(start, 0)]
-    print(f"frontier: {frontier}")
+    #print(f"frontier: {frontier}")
 
     while not pq.empty():
         current_cost, node = pq.get()
         frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
-        print(f"frontier: {frontier}" + f" queue: {pq.queue}")
+        #print(f"frontier: {frontier}" + f" queue: {pq.queue}")
         if node == end:
             break
         for neighbor, weight in enumerate(matrix[node]):
@@ -206,7 +206,7 @@ def GBFS(matrix, start, end):
     frontier = [(start, 0)]
     while not pq.empty():
         _, node = pq.get()
-        print(f"frontier: {frontier}")
+        #print(f"frontier: {frontier}")
         if node == end:
             break
 
@@ -267,7 +267,7 @@ def Astar(matrix, start, end, pos):
     while not pq.empty():
         current_cost, node = pq.get()
         # frontier = sorted([(n, c) for c, n in pq.queue], key=lambda x: x[1])
-        print(f"frontier: {frontier}")
+        #print(f"frontier: {frontier}")
         if node == end:
             break
         for neighbor, weight in enumerate(matrix[node]):
@@ -411,9 +411,8 @@ def IDS(matrix, start, end):
             print(f"path: {path}")
             print(f"visited: {visited}")
             return visited, path
-        print(f"limit {depth}: {frontier}")
+        #print(f"limit {depth}: {frontier}")
     return {}, []
-
 
 def bidirectional_search(matrix, start, end):
     """
@@ -435,8 +434,6 @@ def bidirectional_search(matrix, start, end):
     path: list
         Found path from start to end
     """
-
-    from collections import deque
 
     # Initialization
     n = len(matrix)
@@ -498,7 +495,6 @@ def bidirectional_search(matrix, start, end):
     print("No path found.")
     return visited, []
 
-
 def _construct_path(src_visited, dest_visited, intersecting_node):
     # Construct the path from source to destination via the intersecting node
     path = []
@@ -517,7 +513,6 @@ def _construct_path(src_visited, dest_visited, intersecting_node):
         current = dest_visited[current]
 
     return path
-
 
 def _format_visited(src_visited, dest_visited):
     # Format the visited dictionaries into a single string
